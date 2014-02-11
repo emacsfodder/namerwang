@@ -1,9 +1,9 @@
-;;; namerwang.el --- transmogrifies names between a variety of styles, camels, snake, dashed or humanized.
+;;; namerwang.el --- transmogrifies names between a variety of styles, camels, snake, dashed, title-ized or humanized.
 
 ;; Author: Jason Milkins <jasonm23@gmail.com>
 ;; Url: https://github.com/jasonm23/namerwang
-;; Version: 20140110.1528
-;; X-Original-Version: 0.1.0
+;; Version: 0.2.0 / 20140211064334
+;; X-Original-Version: 0.2.0
 ;; Package-Requires: ((emacs "24.1") (s "1.9.0"))
 ;; Keywords: Strings, Names
 
@@ -23,51 +23,66 @@
 ;;; Commentary:
 
 ;; Namerwang transmogrifies names between a variety of styles, camels,
-;; snake, dashed or humanized. It uses the powerful 's' library by Magnar
-;; Sveen.
+;; snake, dashed, titleized or humanized. It uses the powerful 's'
+;; library by the most excellent Magnar Sveen.
 
 ;;; Change Log:
-
+;;  0.2.0: fix dependency auto-install - add key bindings - first public release to Marmalade
 ;;  0.1.0: initial
+
+(defvar namerwang-requirements '(s) "Packages required for namerwang")
+
+(defun namerwang-requirements-installed-p ()
+  (loop for p in namerwang-requirements
+        when (not (package-installed-p p)) do (return nil)
+        finally (return t)))
+
+(unless (namerwang-requirements-installed-p)
+  (message "Namerwang is refreshing package list")
+  (package-refresh-contents)
+  (message "done")
+  (dolist (p namerwang-requirements)
+    (when (not (package-installed-p p))
+      (package-install p))))
 
 (require 's)
 
-(defun namerwang-snake-case-at-point-or-region ()
+(defun snake-case-namerwang ()
   "snake_case the current word or the region or at cursor point."
   (interactive)
-  (namerwang-operate-on-point-or-region 's-snake-case))
+  (namerwang-operate 's-snake-case))
 
-(defun namerwang-dasherise-at-point-or-region ()
-  "dasherise-the-current CamelCase or snake_case word or the
+(defun dashed-namerwang ()
+  "dashed-the-current CamelCase or snake_case word or the
 region or at cursor point."
   (interactive)
-  (namerwang-operate-on-point-or-region 's-dashed-words))
+  (namerwang-operate 's-dashed-words))
 
-(defun namerwang-upper-camelcase-at-point-or-region ()
+(defun upper-camelcase-namerwang ()
   "UpperCamelCaseTheCurrent words or name at point or in current
 region."
   (interactive)
-  (namerwang-operate-on-point-or-region 's-upper-camel-case))
+  (namerwang-operate 's-upper-camel-case))
 
-(defun namerwang-lower-camelcase-at-point-or-region ()
+(defun lower-camelcase-namerwang ()
   "lowerCamelCaseTheCurrent dashed or snake_case word or any
 words in the region or at cursor point."
   (interactive)
-  (namerwang-operate-on-point-or-region 's-lower-camel-case))
+  (namerwang-operate 's-lower-camel-case))
 
-(defun namerwang-humanize-at-point-or-region ()
+(defun humanize-namerwang ()
   "Humanize variable names, insert spaces instead of - or _ or
 un-CamelCase humps to spaced words."
   (interactive)
-  (namerwang-operate-on-point-or-region 's-capitalized-words))
+  (namerwang-operate 's-capitalized-words))
 
-(defun namerwang-titleized-at-point-or-region ()
+(defun titleized-namerwang ()
   "Convert dashed, underscored or (both styles of) CamelCase,
   or spaced words in region, Title Case Words."
   (interactive)
-  (namerwang-operate-on-point-or-region 's-titleized-words))
+  (namerwang-operate 's-titleized-words))
 
-(defun namerwang-operate-on-point-or-region (fn)
+(defun namerwang-operate (fn)
   "Get the current unspaced string at point, or the current
 region, if selected, and replace it with the return value of fn -
 an ordinary defun."
@@ -80,6 +95,14 @@ an ordinary defun."
     (setq meat (funcall fn (buffer-substring-no-properties pos1 pos2)))
     (delete-region pos1 pos2)
     (insert  meat)))
+
+;; Default bindings...
+(global-set-key (kbd "C-c C-x C-x l") 'lower-camelcase-namerwang)
+(global-set-key (kbd "C-c C-x C-x u") 'upper-camelcase-namerwang)
+(global-set-key (kbd "C-c C-x C-x d") 'dashed-namerwang)
+(global-set-key (kbd "C-c C-x C-x h") 'humanize-namerwang)
+(global-set-key (kbd "C-c C-x C-x t") 'titleized-namerwang)
+(global-set-key (kbd "C-c C-x C-x s") 'snake-case-namerwang)
 
 (provide 'namerwang)
 ;;; namerwang.el ends here
