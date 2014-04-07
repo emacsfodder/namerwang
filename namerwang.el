@@ -2,8 +2,7 @@
 
 ;; Author: Jason Milkins <jasonm23@gmail.com>
 ;; Url: https://github.com/jasonm23/namerwang
-;; Version: 0.2.0 / 20140211064334
-;; X-Original-Version: 0.2.0
+;; Version: 201404071130
 ;; Package-Requires: ((emacs "24.1") (s "1.9.0"))
 ;; Keywords: Strings, Names
 
@@ -29,21 +28,6 @@
 ;;; Change Log:
 ;;  0.2.0: fix dependency auto-install - add key bindings - first public release to Marmalade
 ;;  0.1.0: initial
-
-(defvar namerwang-requirements '(s) "Packages required for namerwang")
-
-(defun namerwang-requirements-installed-p ()
-  (loop for p in namerwang-requirements
-        when (not (package-installed-p p)) do (return nil)
-        finally (return t)))
-
-(unless (namerwang-requirements-installed-p)
-  (message "Namerwang is refreshing package list")
-  (package-refresh-contents)
-  (message "done")
-  (dolist (p namerwang-requirements)
-    (when (not (package-installed-p p))
-      (package-install p))))
 
 (require 's)
 
